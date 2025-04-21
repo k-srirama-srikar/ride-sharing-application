@@ -4,8 +4,8 @@
 # from django.contrib.auth.models import AbstractUser
 # from django.db import models
 
-from django.contrib.gis.db import models
-from django.utils import timezone
+# from django.contrib.gis.db import models
+# from django.utils import timezone
 
 # class User(AbstractUser):
 #     # Add any extra fields if needed
@@ -24,8 +24,9 @@ from django.utils import timezone
 
 
 
-# from django.contrib.gis.db import models
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.utils import timezone
+from django.contrib.gis.db import models
 
 class UserManager(BaseUserManager):
     def create_user(self, email, phone, name, password=None):
@@ -37,7 +38,10 @@ class UserManager(BaseUserManager):
         user = self.model(
             email=self.normalize_email(email),
             phone=phone,
-            name=name
+            name=name,
+            is_active=True,
+            is_staff=False,
+            is_superuser=False,
         )
 
         user.set_password(password)
@@ -47,10 +51,13 @@ class UserManager(BaseUserManager):
     def create_superuser(self, email, phone, name, password):
         user = self.create_user(email, phone, name, password)
         user.role = 'admin'
+        user.is_staff = True
+        user.is_superuser = True
         user.save(using=self._db)
         return user
 
-class User(AbstractBaseUser):
+
+class User(AbstractBaseUser, PermissionsMixin):  # ✅ PermissionsMixin adds groups, permissions, etc.
     ROLE_CHOICES = (
         ('rider', 'Rider'),
         ('driver', 'Driver'),
@@ -63,6 +70,11 @@ class User(AbstractBaseUser):
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='rider')
     created_at = models.DateTimeField(default=timezone.now)
 
+    # ✅ Add these permission flags
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['phone', 'name']
 
@@ -70,6 +82,7 @@ class User(AbstractBaseUser):
 
     def __str__(self):
         return self.email
+
 
 class Rider(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
