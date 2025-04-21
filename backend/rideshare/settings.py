@@ -34,6 +34,14 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
+# Set GDAL / PROJ paths for GeoDjango
+os.environ['GDAL_LIBRARY_PATH'] = r"C:\OSGeo4W64\bin\gdal310.dll"
+os.environ['PROJ_LIB'] = r"C:\OSGeo4W64\share\proj"
+os.environ['GEOS_LIBRARY_PATH']=r"C:\OSGeo4W\bin\geos_c.dll"
+
+GDAL_LIBRARY_PATH = r"C:\OSGeo4W\bin\gdal310.dll"
+GEOS_LIBRARY_PATH=r"C:\OSGeo4W\bin\geos_c.dll"
+PROJ_LIBRARY_PATH = r'C:\OSGeo4W\share\proj'
 # Application definition
 
 INSTALLED_APPS = [
@@ -44,6 +52,10 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     
+    # 🗺 GIS support
+    "django.contrib.gis",
+
+
     # third-party
     "rest_framework",
     
@@ -87,7 +99,7 @@ WSGI_APPLICATION = "rideshare.wsgi.application"
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': os.getenv('DB_NAME'),
         'USER': os.getenv('DB_USER'),
         'PASSWORD': os.getenv('DB_PASSWORD'),
