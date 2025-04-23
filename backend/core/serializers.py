@@ -98,3 +98,19 @@ class DynamicRegisterSerializer(serializers.ModelSerializer):
             )
 
         return user
+    
+
+
+
+from .models import RideRequest
+
+class RideRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RideRequest
+        fields = ['source', 'destination', 'pooling']
+
+    def create(self, validated_data):
+        rider = self.context['request'].user.rider
+        return RideRequest.objects.create(rider=rider, **validated_data)
+    
+

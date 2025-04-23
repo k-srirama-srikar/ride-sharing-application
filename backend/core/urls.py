@@ -22,3 +22,18 @@ urlpatterns = [
 # urlpatterns += [
 #     path('register/', DynamicRegisterView.as_view(), name='dynamic_register'),
 # ]
+
+
+from .views import RiderDashboardView, DriverDashboardView
+
+urlpatterns += [
+    path('rider/dashboard/', RiderDashboardView.as_view(), name='rider_dashboard'),
+    path('driver/dashboard/', DriverDashboardView.as_view(), name='driver_dashboard'),
+]
+
+
+from .views import RequestRideView
+
+urlpatterns += [
+    path('request-ride/', RequestRideView.as_view(), name='request_ride'),
+]
