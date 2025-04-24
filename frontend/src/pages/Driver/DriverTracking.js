@@ -953,7 +953,6 @@ const DriverTracking = () => {
       directionsService.current = new window.google.maps.DirectionsService();
       directionsRenderer.current = new window.google.maps.DirectionsRenderer({
         map: mapInstance,
-        //lalalala
         suppressMarkers: true, // We draw our own P/D markers
       });
     } else {
