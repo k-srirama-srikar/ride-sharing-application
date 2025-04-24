@@ -17,8 +17,13 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
+from django.http import HttpResponse  # Import HttpResponse
+
+def home(request):
+    return HttpResponse("Welcome to my rideshare app!")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path('api/', include('core.urls')),
+    path('', home, name='home'),  # Add this line to handle the root URL
 ]
