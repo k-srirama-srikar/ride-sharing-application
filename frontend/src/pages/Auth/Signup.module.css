@@ -1,0 +1,98 @@
+/* .signupContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 90vh;
+    background: linear-gradient(to right, #6366f1, #4f46e5);
+  } */
+   
+/*  .signupContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(to right, #6366f1, #4f46e5);
+    overflow: hidden; 
+  }*/
+  .signupContainer {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* 👈 aligns items to the top */
+    padding-top: 110px; /* 👈 add space from top */
+    min-height: 100vh;
+    background: linear-gradient(to right, #6366f1, #4f46e5);
+  }
+  
+  
+  
+  .card {
+    background-color: white;
+    padding: 2rem 3rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+  }
+  
+  .title {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    color: #1f2937;
+  }
+  
+  .subtitle {
+    color: #6b7280;
+    margin-bottom: 1.5rem;
+  }
+  
+  .form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .input {
+    padding: 0.8rem 1rem;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    font-size: 1rem;
+  }
+  
+  .input:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.2);
+  }
+  
+  .button {
+    background-color: #4f46e5;
+    color: white;
+    padding: 0.8rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .button:hover {
+    background-color: #4338ca   ;
+  }
+  
+  .loginText {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: #6b7280;
+  }
+  
+  .loginText a {
+    color: #4f46e5;
+    text-decoration: none;
+  }
+  
+  .loginText a:hover {
+    text-decoration: underline;
+  }
+  
