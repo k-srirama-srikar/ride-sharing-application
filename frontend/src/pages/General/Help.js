@@ -2,7 +2,7 @@
 const Help = () => (
     <div style={{ padding: '2rem' }}>
       <h1>Help Center</h1>
-      <p>Having trouble? Contact our support or check out the FAQ section.</p>
+      <p>Instructions to book and FAQ will be filled in this section.</p>
     </div>
   );
   export default Help;
