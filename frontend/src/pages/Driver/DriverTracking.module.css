@@ -181,7 +181,7 @@
 
 
 
-.container {
+/* .container {
     display: flex;
     height: 100vh;
     font-family: 'Segoe UI', sans-serif;
@@ -259,5 +259,91 @@
   .buttonGroup button:last-child {
     background: #e74c3c;
     color: white;
+  }
+   */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   .container {
+    display: flex;
+    padding: 20px;
+    gap: 20px;
+    background-color: #f7f9fc;
+    height: 90vh;
+  }
+  
+  .mapContainer {
+    flex: 2;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .infoPanel {
+    flex: 1;
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    overflow-y: auto;
+    max-height: 100%;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  }
+  
+  .rideCard {
+    border: 1px solid #ccc;
+    padding: 12px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    background-color: #f4f4f4;
+  }
+  
+  .rideCard.completed {
+    background-color: #d3f9d8;
+  }
+  
+  .newRequest {
+    padding: 12px;
+    margin-top: 16px;
+    background-color: #fff3cd;
+    border-left: 5px solid #ffc107;
+    border-radius: 6px;
+  }
+  
+  .buttonGroup {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  
+  button {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    background-color: #4caf50;
+    color: white;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  
+  button:hover {
+    background-color: #388e3c;
   }
   

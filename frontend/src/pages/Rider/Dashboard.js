@@ -31,7 +31,7 @@ const RiderDashboard = () => {
   return (
     <div className={styles.container}>
       <h1 className={styles.heading}>Welcome, Rider!</h1>
-      <p className={styles.text}>Find a ride or track your bookings below.</p>
+      <p className={styles.text}>Find a ride or Recent Bookings</p>
 
       <button className={styles.requestButton} onClick={() => navigate("/rider/request")}>
         🚖 Request a New Ride

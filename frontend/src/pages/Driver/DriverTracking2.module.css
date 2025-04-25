@@ -1,0 +1,127 @@
+/* src/pages/Driver/DriverTracking2.module.css */
+
+.container {
+    padding: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    max-width: 900px; /* Optional: Limit max width */
+    margin: 20px auto; /* Center the content */
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .title {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #333;
+    font-weight: 600;
+  }
+  
+  /* --- Info Message Styling --- */
+  .infoMessage {
+    padding: 12px 15px;
+    margin-bottom: 20px;
+    border-radius: 6px;
+    text-align: center;
+    font-size: 0.95em;
+    border: 1px solid;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+  }
+  
+  .infoSuccess {
+    background-color: #e0f7fa; /* Light cyan */
+    border-color: #00bcd4; /* Cyan */
+    color: #006064; /* Dark cyan text */
+  }
+  
+  .infoError {
+    background-color: #ffdddd; /* Light red */
+    border-color: #f44336; /* Red */
+    color: #a94442; /* Dark red text */
+  }
+  
+  /* --- Map Styling --- */
+  .mapWrapper {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    overflow: hidden; /* Ensures map corners are rounded */
+    margin-bottom: 25px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* NOTE: GoogleMap's containerStyle prop handles the internal map dimensions */
+  
+  /* --- Controls Styling --- */
+  .controlsContainer {
+    margin-top: 25px;
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+    gap: 15px; /* Spacing between buttons */
+    padding: 15px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  
+  .button {
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 6px;
+    border: none;
+    color: white;
+    font-size: 0.9em;
+    font-weight: 500;
+    transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    text-align: center;
+  }
+  
+  .button:hover:not(:disabled) {
+    opacity: 0.9;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  }
+  
+  .button:active:not(:disabled) {
+    transform: translateY(1px);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  }
+  
+  .button:disabled {
+    background-color: #cccccc;
+    color: #666666;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  
+  .buttonRider2 { background-color: #4CAF50; } /* Green */
+  .buttonRider3 { background-color: #2196F3; } /* Blue */
+  .buttonFar    { background-color: #f44336; } /* Red */
+  .buttonReset  { background-color: #ff9800; } /* Orange */
+  
+  /* --- Ride State Details Styling --- */
+  .rideStateDetails {
+    margin-top: 25px;
+    font-size: 0.9em;
+    background-color: #e9ecef; /* Light grey */
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #ced4da;
+    color: #495057; /* Dark grey text */
+    line-height: 1.6;
+  }
+  
+  .rideStateDetails strong {
+    color: #343a40;
+    display: block;
+    margin-bottom: 8px;
+  }
+  
+  .rideStateDetails div {
+    margin-bottom: 5px;
+  }
+  
+  .rideStateDetails span { /* Style for waypoint labels */
+      font-weight: 500;
+      margin-right: 5px;
+  }
