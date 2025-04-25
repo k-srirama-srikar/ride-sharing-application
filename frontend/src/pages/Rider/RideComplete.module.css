@@ -1,0 +1,29 @@
+.container {
+    padding: 40px;
+    max-width: 600px;
+    margin: auto;
+    text-align: left;
+  }
+  
+  .payBtn {
+    padding: 12px 24px;
+    background-color: green;
+    border: none;
+    color: white;
+    margin-bottom: 20px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  select,
+  textarea {
+    padding: 10px;
+    font-size: 16px;
+  }
+  

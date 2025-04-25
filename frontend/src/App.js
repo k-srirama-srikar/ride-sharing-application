@@ -12,6 +12,8 @@ import DriverDashboard from './pages/Driver/Dashboard';
 import DriverTracking from './pages/Driver/DriverTracking';
 import RequestRide from './pages/Rider/RequestRide';
 import WaitingPage from './pages/Rider/WaitingPage';
+import RideTracking from "./pages/Rider/RideTracking";
+import RideComplete from './pages/Rider/RideComplete';
 import About from './pages/General/About';
 import Help from './pages/General/Help';
 import CompleteDetails from './pages/Driver/CompleteDetails';
@@ -28,6 +30,8 @@ function App() {
         <Route path="/rider-dashboard" element={<RiderDashboard />} />
         <Route path="/rider/request" element={<RequestRide />} />
         <Route path="/rider/waiting" element={<WaitingPage />} />
+        <Route path="/rider/tracking" element={<RideTracking />} />
+        <Route path="/rider/complete" element={<RideComplete />} />
         <Route path="/driver-dashboard" element={<DriverDashboard />} />
         <Route path="/driver/complete-details" element={<CompleteDetails />} />
         <Route path="/driver/tracking" element={<DriverTracking />} />
