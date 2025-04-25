@@ -433,6 +433,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from .models import RideRequest, DriverLocation, Driver
+from django.contrib.gis.geos import GEOSGeometry
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -445,8 +446,14 @@ def initiate_ride_request(request):
     if not source or not destination:
         return Response({"error": "Source and destination required"}, status=400)
 
-    source_point = f'POINT({source["lng"]} {source["lat"]})'
-    destination_point = f'POINT({destination["lng"]} {destination["lat"]})'
+    # source_point = f'POINT({source["lng"]} {source["lat"]})'
+    # destination_point = f'POINT({destination["lng"]} {destination["lat"]})'
+
+    try:
+        source_point = GEOSGeometry(f'POINT({source["lng"]} {source["lat"]})', srid=4326)
+        destination_point = GEOSGeometry(f'POINT({destination["lng"]} {destination["lat"]})', srid=4326)
+    except Exception as e:
+        return Response({"error": f"Invalid coordinates: {e}"}, status=400)
 
     ride_request = RideRequest.objects.create(
         rider=rider,
@@ -455,12 +462,22 @@ def initiate_ride_request(request):
         pooling=pooling,
     )
 
+    # nearby_drivers = (
+    #     Driver.objects
+    #     .filter(status='available', driverlocation__location__dwithin=(source_point, D(km=5)))
+    #     .annotate(distance=Distance('driverlocation__location', source_point))
+    #     .order_by('distance')[:5]
+    # )
+
+
     nearby_drivers = (
         Driver.objects
-        .filter(status='available', driverlocation__location__dwithin=(source_point, D(km=5)))
+        .filter(status='available')
         .annotate(distance=Distance('driverlocation__location', source_point))
+        .filter(distance__lte=5000)  # 5 km
         .order_by('distance')[:5]
     )
+
 
     driver_list = [
         {
