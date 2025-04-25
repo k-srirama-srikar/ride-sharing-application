@@ -104,10 +104,17 @@ class Driver(models.Model):
     seat_capacity = models.IntegerField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='available')
 
+from django.contrib.gis.db import models
+from django.contrib.postgres.indexes import GistIndex
+
 class DriverLocation(models.Model):
     driver = models.ForeignKey(Driver, on_delete=models.CASCADE)
     location = models.PointField()
     updated_at = models.DateTimeField(auto_now=True)
+    class Meta:
+        indexes = [
+            GistIndex(fields=["location"]),
+        ]
 
 class RideRequest(models.Model):
     STATUS_CHOICES = (
@@ -122,6 +129,10 @@ class RideRequest(models.Model):
     pooling = models.BooleanField(default=False)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        indexes = [
+            models.Index(fields=["status"]),
+        ]
 
 class RidePooling(models.Model):
     STATUS_CHOICES = (
@@ -153,6 +164,12 @@ class Ride(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='ongoing')
     started_at = models.DateTimeField(auto_now_add=True)
     completed_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        indexes = [
+            GistIndex(fields=["source"]),
+            GistIndex(fields=["destination"]),
+        ]
 
 class Rating(models.Model):
     ride = models.ForeignKey(Ride, on_delete=models.CASCADE)

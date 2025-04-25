@@ -114,3 +114,59 @@ class RideRequestSerializer(serializers.ModelSerializer):
         return RideRequest.objects.create(rider=rider, **validated_data)
     
 
+from .models import Rating
+
+class RatingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Rating
+        fields = ['ride', 'rider', 'driver', 'rating', 'feedback']
+
+
+from .models import Payment
+from rest_framework import serializers
+
+class PaymentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Payment
+        fields = ['ride', 'rider', 'amount', 'payment_method', 'status']
+
+
+
+from rest_framework import serializers
+from .models import Ride
+
+class RideSerializer(serializers.ModelSerializer):
+    driver_name = serializers.CharField(source='driver.user.name', read_only=True)
+    rider_name = serializers.CharField(source='rider.user.name', read_only=True)
+
+    class Meta:
+        model = Ride
+        fields = [
+            'id',
+            'driver_name',
+            'rider_name',
+            'source',
+            'destination',
+            'route',
+            'status',
+            'started_at',
+            'completed_at',
+            'pooling',
+        ]
+
+
+
+from rest_framework import serializers
+from .models import DriverLocation, RideRequest, Ride, Driver
+
+class DriverLocationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DriverLocation
+        fields = ['location']
+
+class RideConfirmSerializer(serializers.Serializer):
+    request_id = serializers.IntegerField()
+    driver_id = serializers.IntegerField()
+
+class RideCancelSerializer(serializers.Serializer):
+    request_id = serializers.IntegerField()

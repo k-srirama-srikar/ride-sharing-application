@@ -32,8 +32,65 @@ urlpatterns += [
 ]
 
 
-from .views import RequestRideView
+from .views import RequestRideView, GetNearbyDriversView, AssignDriverView
 
 urlpatterns += [
     path('request-ride/', RequestRideView.as_view(), name='request_ride'),
+    path("ride/nearby-drivers/", GetNearbyDriversView.as_view()),
+    path("ride/assign-driver/", AssignDriverView.as_view()),
+]
+
+
+from .views import complete_ride_view
+
+urlpatterns += [
+    path('rides/<int:ride_id>/complete/', complete_ride_view),
+]
+
+
+from .views import SubmitRatingView
+
+urlpatterns += [
+    path('rides/rate/', SubmitRatingView.as_view(), name='rate-ride'),
+]
+
+
+from .views import SubmitPaymentView
+
+urlpatterns += [
+    path('rides/pay/', SubmitPaymentView.as_view(), name='ride-payment'),
+]
+
+
+from .views import RiderRideHistoryView, DriverRideHistoryView
+
+urlpatterns += [
+    path('rides/history/rider/', RiderRideHistoryView.as_view(), name='rider-ride-history'),
+    path('rides/history/driver/', DriverRideHistoryView.as_view(), name='driver-ride-history'),
+]
+
+from .views import RideStatusView
+# path("rides/<int:ride_id>/status/", RideStatusView.as_view(), name="ride-status"),
+
+
+from .views import initiate_ride_request, confirm_ride_request, cancel_ride_request
+
+urlpatterns += [
+    path("rides/<int:ride_id>/status/", RideStatusView.as_view(), name="ride-status"),
+    path('riderequest/initiate/', initiate_ride_request),
+    path('riderequest/confirm/', confirm_ride_request),
+    path('riderequest/cancel/', cancel_ride_request),
+]
+
+from django.urls import path
+from .views import (
+    UpdateDriverLocationView,
+    ConfirmRideView,
+    CancelRideView,
+)
+
+urlpatterns += [
+    path("driver/update-location/", UpdateDriverLocationView.as_view(), name="update-driver-location"),
+    path("ride/confirm/", ConfirmRideView.as_view(), name="confirm-ride"),
+    path("ride/cancel/", CancelRideView.as_view(), name="cancel-ride"),
 ]
