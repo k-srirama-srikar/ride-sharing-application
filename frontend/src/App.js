@@ -16,8 +16,6 @@ import RideTracking from "./pages/Rider/RideTracking";
 import RideComplete from './pages/Rider/RideComplete';
 import About from './pages/General/About';
 import Help from './pages/General/Help';
-import CompleteDetails from './pages/Driver/CompleteDetails';
-
 
 function App() {
   return (
@@ -33,7 +31,6 @@ function App() {
         <Route path="/rider/tracking" element={<RideTracking />} />
         <Route path="/rider/complete" element={<RideComplete />} />
         <Route path="/driver-dashboard" element={<DriverDashboard />} />
-        <Route path="/driver/complete-details" element={<CompleteDetails />} />
         <Route path="/driver/tracking" element={<DriverTracking />} />
         <Route path="/about" element={<About />} />
         <Route path="/help" element={<Help />} />
