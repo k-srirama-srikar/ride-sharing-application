@@ -362,202 +362,183 @@
 
 
 
-
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react"; // Import useCallback
 import {
   GoogleMap,
   DirectionsRenderer,
   useLoadScript,
 } from "@react-google-maps/api";
-// Make sure your CSS module path is correct
+// Make sure your CSS module path is correct (e.g., same folder)
 import styles from "./DriverTracking.module.css";
 
-// Keep libraries simple if only places are needed for autocomplete elsewhere,
-// otherwise, DirectionsService doesn't strictly require it here.
+// Keep libraries simple if only places are needed for autocomplete elsewhere.
 const libraries = ["places"];
+
+// Define map container style constant for clarity
+const mapContainerStyle = { width: "100%", height: "100%" };
+// Define initial map center constant
+const initialCenter = { lat: 28.6139, lng: 77.209 }; // New Delhi
 
 const DriverTracking = () => {
   const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
+    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY, // Ensure this is set in your .env file!
     libraries,
   });
 
-  const [directions, setDirections] = useState(null); // Stores the DirectionsResult object
+  const [directions, setDirections] = useState(null);
   const [currentRides, setCurrentRides] = useState([
-    // Initial ride (Rider 1)
     {
       id: 1,
       name: "Ravi Kumar",
       pickup: "Connaught Place, New Delhi", // P1
       dropoff: "India Gate, New Delhi",     // D1
-      pooling: true, // Assuming initial ride can be pooled with
+      pooling: true,
       rideType: "Standard",
     },
   ]);
 
-  // State for the incoming request card
   const [newRequest, setNewRequest] = useState({
     id: 2,
     name: "Anita Singh",
-    pickup: "Rajiv Chowk, New Delhi",      // P2 (Example)
-    dropoff: "Central Secretariat, New Delhi", // D2 (Example)
+    pickup: "Rajiv Chowk Metro Station, New Delhi", // Be specific for better geocoding
+    dropoff: "Central Secretariat Metro Station, New Delhi", // Be specific
   });
 
-  // State to track completed ride IDs for UI styling/disabling buttons
   const [completedRides, setCompletedRides] = useState([]);
 
-  // --- Modified calculateRoute Function ---
-  const calculateRoute = (rides) => {
-    // Guard clauses: Ensure API is loaded and there are rides
+  // --- Memoized calculateRoute Function using useCallback ---
+  const calculateRoute = useCallback((rides) => {
+    // Guard clauses
     if (!window.google || !isLoaded || !rides || rides.length === 0) {
-        console.log("calculateRoute: Prerequisites not met (API loaded, rides exist).");
-        return;
+      console.log("calculateRoute: Prerequisites not met.");
+      // Clear directions if no rides are provided to calculate for
+      if (rides.length === 0) {
+          setDirections(null);
+      }
+      return;
     }
 
-    console.log(`calculateRoute: Calculating for ${rides.length} rides.`);
+    console.log(`calculateRoute: Calculating for ${rides.length} ride(s).`);
 
     const directionsService = new window.google.maps.DirectionsService();
 
-    // --- Define Origin and Destination ---
-    // Origin is always the first ride's pickup
     const origin = rides[0].pickup;
-    // Destination is the *last* ride's dropoff (the API will optimize the order to reach it)
     const destination = rides[rides.length - 1].dropoff;
-
-    // --- Build Waypoints ---
     const waypoints = [];
-    // The goal is to include all intermediate pickup and dropoff points
-    // between the absolute origin (P1) and the absolute destination (Dn).
-    // The API will optimize the order of visiting these waypoints.
 
-    // Add the first rider's dropoff (D1) if there's more than one ride
+    // Add first rider's dropoff if > 1 ride
     if (rides.length > 1) {
-        waypoints.push({ location: rides[0].dropoff, stopover: true });
+      waypoints.push({ location: rides[0].dropoff, stopover: true });
     }
 
-    // Add pickup (Pi) and dropoff (Di) for all riders *between* the first and the last
-    // (i.e., from the second rider up to the second-to-last rider)
+    // Add intermediate pickups/dropoffs (riders 2 to n-1)
     for (let i = 1; i < rides.length - 1; i++) {
-        waypoints.push({ location: rides[i].pickup, stopover: true });
-        waypoints.push({ location: rides[i].dropoff, stopover: true });
+      waypoints.push({ location: rides[i].pickup, stopover: true });
+      waypoints.push({ location: rides[i].dropoff, stopover: true });
     }
 
-    // Add the *last* rider's pickup (Pn) if there's more than one ride
-    // (their dropoff is the overall destination)
+    // Add last rider's pickup if > 1 ride
     if (rides.length > 1) {
-         waypoints.push({ location: rides[rides.length - 1].pickup, stopover: true });
+      waypoints.push({ location: rides[rides.length - 1].pickup, stopover: true });
     }
 
     console.log("calculateRoute: Request details:", { origin, destination, waypoints });
 
-    // --- Make the Directions Request ---
     directionsService.route(
       {
         origin: origin,
         destination: destination,
-        waypoints: waypoints, // Pass the collected intermediate stops
+        waypoints: waypoints,
         travelMode: window.google.maps.TravelMode.DRIVING,
-        // *** KEY CHANGE: Enable waypoint optimization ***
-        optimizeWaypoints: true,
+        optimizeWaypoints: true, // Let Google Maps optimize the order
       },
       (result, status) => {
         if (status === window.google.maps.DirectionsStatus.OK) {
-          console.log("calculateRoute: Directions received successfully:", result);
-          setDirections(result); // Update state with the new DirectionsResult
+          console.log("calculateRoute: Directions received:", result);
+          setDirections(result); // Update state with the DirectionsResult
         } else {
-          console.error("Directions request failed due to " + status, result);
-          // Optionally clear old directions or show an error message
-          setDirections(null);
-          alert(`Error calculating route: ${status}. Please check locations.`);
+          console.error(`Directions request failed: ${status}`, result);
+          setDirections(null); // Clear previous route on error
+          // Consider using a state variable for errors instead of alert
+          alert(`Error calculating route: ${status}. Check address validity.`);
         }
       }
     );
-  };
+    // useCallback dependencies:
+    // - isLoaded: Checked at the start, and also a dependency of the useEffect calling this.
+    // - setDirections: State setter, stable.
+    // No other external variables from component scope are used.
+  }, [isLoaded]); // Include isLoaded here as it's used in the guard clause
 
   // --- useEffect to Recalculate Route ---
-  // Recalculates whenever the API is loaded or the list of current rides changes
   useEffect(() => {
-    if (isLoaded && currentRides.length > 0) {
+    // Only attempt calculation if the API is loaded.
+    // calculateRoute itself handles the case of empty rides.
+    if (isLoaded) {
       calculateRoute(currentRides);
-    } else if (isLoaded && currentRides.length === 0) {
-        // Optionally clear directions if all rides are removed
-        setDirections(null);
     }
-    // Dependency array: triggers when isLoaded changes or currentRides array reference changes
-  }, [isLoaded, currentRides]);
+    // Dependency array: Now includes the stable calculateRoute function.
+    // The effect runs when isLoaded changes, currentRides changes,
+    // or (theoretically) if calculateRoute itself were to change (which it won't often due to useCallback).
+  }, [isLoaded, currentRides, calculateRoute]);
 
   // --- Event Handlers ---
-
-  // Handles accepting the new pool request
   const handleAcceptRequest = () => {
-    if (!newRequest) return; // Should not happen if button is visible
-
-    // Create the new ride object from the request
+    if (!newRequest) return;
     const rideToAdd = {
-        ...newRequest, // includes id, name, pickup, dropoff
-        pooling: true,   // Mark as pooled
-        rideType: "Standard", // Or determine based on request
+      ...newRequest,
+      pooling: true,
+      rideType: "Pool", // Be more specific maybe?
     };
-
-    // Update the list of current rides
-    // This state change will trigger the useEffect above, which calls calculateRoute
-    const updatedRides = [...currentRides, rideToAdd];
-    setCurrentRides(updatedRides);
-
-    // Clear the new request card from the UI
-    setNewRequest(null);
-  };
-
-  // Handles rejecting the new pool request
-  const handleRejectRequest = () => {
-    alert("Request rejected.");
+    // Add the new ride. This state change triggers the useEffect -> calculateRoute
+    setCurrentRides(prevRides => [...prevRides, rideToAdd]);
     setNewRequest(null); // Clear the request card
   };
 
-  // Handles marking a ride as complete (for UI purposes)
+  const handleRejectRequest = () => {
+    alert("Request rejected."); // Again, consider a better notification system
+    setNewRequest(null);
+  };
+
   const handleRideComplete = (rideId) => {
-    // Add the rideId to the list of completed rides
     setCompletedRides((prev) => {
-      // Avoid duplicates if button somehow clicked twice
       if (!prev.includes(rideId)) {
         return [...prev, rideId];
       }
       return prev;
     });
-
-    // NOTE: This example does NOT remove the ride from `currentRides` or recalculate
-    // the route when marking as done. To do that, you would need to:
-    // 1. Filter `currentRides` to remove the completed one.
-    // 2. Call `setCurrentRides` with the filtered list.
-    // This would then trigger the route recalculation. For simplicity,
-    // this version only updates the UI state (`completedRides`).
+    // As noted in the comment, removing the ride and recalculating
+    // would require filtering `currentRides` and calling `setCurrentRides`.
+    // Example (if you wanted recalculation):
+    // setCurrentRides(prevRides => prevRides.filter(ride => ride.id !== rideId));
   };
 
   // --- Render Logic ---
-
-  if (loadError) return <div>Error loading Google Maps. Please check your API key and network connection.</div>;
-  if (!isLoaded) return <div>Loading map...</div>;
+  if (loadError) return <div className={styles.errorLoading}>Error loading Google Maps. Please check API key and network.</div>;
+  if (!isLoaded) return <div className={styles.loading}>Loading map...</div>;
 
   return (
     <div className={styles.container}>
       {/* Map Area */}
       <div className={styles.mapContainer}>
         <GoogleMap
-          mapContainerStyle={{ width: "100%", height: "100%" }}
-          // Center on New Delhi initially, or could center on first ride's origin
-          center={{ lat: 28.6139, lng: 77.209 }}
-          zoom={12} // Adjust zoom as needed
-          options={{ streetViewControl: false, mapTypeControl: false }} // Optional: simplify controls
+          mapContainerStyle={mapContainerStyle}
+          center={initialCenter}
+          zoom={12}
+          options={{
+            streetViewControl: false,
+            mapTypeControl: false,
+            fullscreenControl: true // Good to have
+          }}
         >
-          {/* DirectionsRenderer draws the route line based on the 'directions' state */}
+          {/* Render directions if available */}
           {directions && (
             <DirectionsRenderer
-                directions={directions}
-                options={{
-                    suppressMarkers: false // Let DirectionsRenderer show default A, B, C markers
-                    // If you want custom markers instead, set suppressMarkers: true
-                    // and add <Marker> components looping through route legs/steps
-                }}
+              directions={directions}
+              options={{
+                  suppressMarkers: false // Show default A, B, C... markers
+                  // To customize markers, set true and add <Marker> components
+              }}
             />
           )}
         </GoogleMap>
@@ -568,25 +549,31 @@ const DriverTracking = () => {
         <h2>Driver Panel</h2>
 
         {/* List of Current Rides */}
-        {currentRides.map((ride) => (
-          <div
-            key={ride.id}
-            // Apply 'completed' style if rideId is in completedRides array
-            className={`${styles.rideCard} ${completedRides.includes(ride.id) ? styles.completed : ""}`}
-          >
-            <p><strong>Rider:</strong> {ride.name} (ID: {ride.id})</p>
-            <p><strong>Pickup:</strong> {ride.pickup}</p>
-            <p><strong>Dropoff:</strong> {ride.dropoff}</p>
-            <p><strong>Ride Type:</strong> {ride.rideType}</p>
-            <p><strong>Pooling:</strong> {ride.pooling ? "Yes" : "No"}</p>
-            <button
-              disabled={completedRides.includes(ride.id)} // Disable if already marked done
-              onClick={() => handleRideComplete(ride.id)}
+        {currentRides.length > 0 ? (
+            currentRides.map((ride) => (
+            <div
+                key={ride.id}
+                className={`${styles.rideCard} ${completedRides.includes(ride.id) ? styles.completed : ""}`}
             >
-              {completedRides.includes(ride.id) ? "Done" : "Mark Ride as Done"}
-            </button>
-          </div>
-        ))}
+                <p><strong>Rider:</strong> {ride.name} (ID: {ride.id})</p>
+                <p><strong>Pickup:</strong> {ride.pickup}</p>
+                <p><strong>Dropoff:</strong> {ride.dropoff}</p>
+                {/* <p><strong>Ride Type:</strong> {ride.rideType}</p> */}
+                {/* <p><strong>Pooling:</strong> {ride.pooling ? "Yes" : "No"}</p> */}
+                <button
+                className={styles.completeButton} // Add specific class?
+                disabled={completedRides.includes(ride.id)}
+                onClick={() => handleRideComplete(ride.id)}
+                >
+                {completedRides.includes(ride.id) ? "Ride Done" : "Mark as Done"}
+                </button>
+            </div>
+            ))
+        ) : (
+            // Show message only if there are no current rides AND no new request pending
+            !newRequest && <p className={styles.noRidesMessage}>No active rides.</p>
+        )}
+
 
         {/* New Request Card */}
         {newRequest && (
@@ -596,16 +583,12 @@ const DriverTracking = () => {
             <p><strong>Pickup:</strong> {newRequest.pickup}</p>
             <p><strong>Dropoff:</strong> {newRequest.dropoff}</p>
             <div className={styles.buttonGroup}>
-              <button onClick={handleAcceptRequest}>Accept</button>
-              <button onClick={handleRejectRequest}>Reject</button>
+              <button className={styles.acceptButton} onClick={handleAcceptRequest}>Accept</button>
+              <button className={styles.rejectButton} onClick={handleRejectRequest}>Reject</button>
             </div>
           </div>
         )}
 
-        {/* Message if no rides */}
-        {currentRides.length === 0 && !newRequest && (
-            <p>No active rides or requests.</p>
-        )}
       </div>
     </div>
   );

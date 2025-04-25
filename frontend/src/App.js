@@ -10,6 +10,7 @@ import Signup from './pages/Auth/Signup';
 import RiderDashboard from './pages/Rider/Dashboard';
 import DriverDashboard from './pages/Driver/Dashboard';
 import DriverTracking from './pages/Driver/DriverTracking';
+import DriverTracking2 from './pages/Driver/DriverTracking2';
 import RequestRide from './pages/Rider/RequestRide';
 import WaitingPage from './pages/Rider/WaitingPage';
 import RideTracking from "./pages/Rider/RideTracking";
@@ -32,6 +33,7 @@ function App() {
         <Route path="/rider/complete" element={<RideComplete />} />
         <Route path="/driver-dashboard" element={<DriverDashboard />} />
         <Route path="/driver/tracking" element={<DriverTracking />} />
+        <Route path="/driver/tracking2" element={<DriverTracking2 />} />
         <Route path="/about" element={<About />} />
         <Route path="/help" element={<Help />} />
 

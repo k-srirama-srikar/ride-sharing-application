@@ -1,4 +1,4 @@
-.container {
+/* .container {
     padding: 40px;
     max-width: 600px;
     margin: auto;
@@ -26,4 +26,338 @@
     padding: 10px;
     font-size: 16px;
   }
-  
+   */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* src/pages/Rider/RideComplete.module.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap'); /* Example using Inter font */
+
+.pageContainer { /* Changed from .container */
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; /* Align card to top */
+  min-height: 100vh;
+  padding: 40px 20px; /* More padding top/bottom */
+  background: linear-gradient(135deg, #f5f7fa 0%, #e0e5ec 100%); /* Subtle gradient */
+  font-family: 'Inter', sans-serif; /* Apply font */
+}
+
+.card {
+  background-color: #ffffff;
+  padding: 40px; /* Increased padding */
+  border-radius: 16px; /* More rounded */
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08), 0 5px 10px rgba(0, 0, 0, 0.04); /* Softer shadow */
+  max-width: 550px;
+  width: 100%;
+  text-align: center;
+  border: 1px solid #e7eaf3; /* Subtle border */
+}
+
+/* --- Checkmark Icon Animation --- */
+.iconContainer {
+    margin: 0 auto 20px auto;
+    width: 80px;
+    height: 80px;
+}
+
+.checkmarkIcon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: block;
+    stroke-width: 3; /* Thicker lines */
+    stroke: #ffffff; /* White checkmark */
+    stroke-miterlimit: 10;
+    box-shadow: inset 0px 0px 0px #4CAF50;
+    animation: fillAnimation .4s ease-in-out .4s forwards, scaleAnimation .3s ease-in-out .9s both;
+}
+
+.checkmarkCircle {
+    stroke-dasharray: 166;
+    stroke-dashoffset: 166;
+    stroke-width: 3; /* Match thickness */
+    stroke-miterlimit: 10;
+    stroke: #4CAF50; /* Green circle */
+    fill: none;
+    animation: strokeAnimation 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.checkmarkCheck {
+    transform-origin: 50% 50%;
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    animation: strokeAnimation 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+}
+
+@keyframes strokeAnimation {
+    100% { stroke-dashoffset: 0; }
+}
+
+@keyframes scaleAnimation {
+    0% { transform: none; }
+    50% { transform: scale3d(1.1, 1.1, 1); }
+    100% { transform: none; }
+}
+
+@keyframes fillAnimation {
+    100% { box-shadow: inset 0px 0px 0px 40px #4CAF50; } /* Fill with green */
+}
+
+/* --- Typography & Sections --- */
+.title {
+  font-size: 2.2rem; /* Slightly larger */
+  color: #2d3748; /* Darker grey */
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: #718096; /* Lighter grey */
+  margin-bottom: 35px; /* More space */
+}
+
+.section {
+  margin-bottom: 35px; /* Consistent spacing */
+  padding-top: 25px;
+  border-top: 1px solid #e2e8f0; /* Separator */
+}
+
+.section:first-of-type { /* No top border for the first section (payment) */
+    padding-top: 0;
+    border-top: none;
+}
+
+
+.sectionTitle {
+  font-size: 1.3rem;
+  color: #4a5568; /* Medium grey */
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+/* --- Payment --- */
+.fareText {
+  font-size: 1.1rem;
+  color: #4a5568;
+  margin-bottom: 18px;
+}
+
+.fareAmount {
+  font-weight: 700;
+  font-size: 1.5rem; /* Larger fare */
+  color: #38a169; /* Slightly different green */
+  margin-left: 5px;
+}
+
+/* --- Form Elements --- */
+.form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 25px; /* Increased gap */
+}
+
+.fieldGroup {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Align labels left */
+}
+
+.label {
+  font-size: 0.95rem; /* Slightly smaller label */
+  color: #4a5568;
+  font-weight: 600; /* Bolder label */
+  margin-bottom: 8px;
+}
+
+/* --- Star Rating --- */
+.starsContainer {
+  margin-top: 5px;
+  width: 100%;
+  text-align: center; /* Center stars */
+}
+
+.star {
+  font-size: 2.8rem; /* Larger stars */
+  color: #e2e8f0; /* Light grey empty star */
+  background: none;
+  border: none;
+  padding: 0 4px; /* Adjust spacing */
+  cursor: pointer;
+  transition: color 0.2s ease-in-out, transform 0.15s ease;
+  user-select: none;
+}
+
+.star:hover {
+  transform: scale(1.15); /* Slightly bigger hover */
+}
+
+.star.active {
+  color: #facc15; /* Brighter gold color */
+}
+
+.star:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* --- Feedback Textarea --- */
+.textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #cbd5e0; /* Lighter border */
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 90px;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.textarea:focus {
+  border-color: #4299e1; /* Blue focus */
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.3); /* Focus ring */
+}
+
+.textarea:disabled {
+    background-color: #f7fafc;
+    cursor: not-allowed;
+}
+
+
+/* --- Buttons --- */
+.button {
+  padding: 12px 30px; /* Slightly more padding */
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease; /* Smooth transition for all properties */
+  width: auto;
+  min-width: 160px;
+  display: inline-flex; /* Align icon and text if needed */
+  justify-content: center;
+  align-items: center;
+}
+
+.button:hover:not(:disabled) {
+  transform: translateY(-2px); /* Slightly more lift */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.button:active:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.payButton {
+  background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); /* Green gradient */
+  color: white;
+  box-shadow: 0 4px 10px rgba(56, 161, 105, 0.3);
+}
+
+.payButton:hover:not(:disabled) {
+  background: linear-gradient(135deg, #38a169 0%, #2f855a 100%); /* Darker green gradient */
+}
+
+.payButton.paymentDone {
+  background: #a0aec0; /* Neutral grey */
+  box-shadow: none;
+  cursor: default;
+}
+.payButton.paymentDone:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+
+.submitButton {
+  background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%); /* Blue gradient */
+  color: white;
+  margin-top: 15px;
+  box-shadow: 0 4px 10px rgba(49, 130, 206, 0.3);
+}
+
+.submitButton:hover:not(:disabled) {
+  background: linear-gradient(135deg, #3182ce 0%, #2b6cb0 100%); /* Darker blue gradient */
+}
+
+.submitButton:disabled {
+   background: linear-gradient(135deg, #a0aec0 0%, #718096 100%); /* Grey gradient when disabled */
+   box-shadow: none;
+}
+
+/* --- Error Message --- */
+.errorText {
+  color: #e53e3e; /* Slightly different red */
+  background-color: #fed7d7; /* Light red background */
+  border: 1px solid #f56565;
+  padding: 10px 15px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  margin-top: 15px;
+  width: 100%;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+/* --- Responsiveness --- */
+@media (max-width: 600px) {
+  .pageContainer {
+    padding: 20px 15px;
+  }
+  .card {
+    padding: 25px;
+    border-radius: 12px;
+  }
+  .title {
+    font-size: 1.8rem;
+  }
+  .subtitle {
+      margin-bottom: 25px;
+  }
+  .section {
+      margin-bottom: 25px;
+      padding-top: 20px;
+  }
+  .star {
+    font-size: 2.2rem;
+    padding: 0 2px;
+  }
+  .button {
+      padding: 10px 20px;
+      min-width: 120px;
+  }
+}
