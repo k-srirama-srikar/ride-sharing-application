@@ -73,7 +73,7 @@ from .views import RideStatusView
 # path("rides/<int:ride_id>/status/", RideStatusView.as_view(), name="ride-status"),
 
 
-from .views import initiate_ride_request, confirm_ride_request, cancel_ride_request
+from .views import initiate_ride_request, confirm_ride_request, cancel_ride_request, GetNearbyDriversView
 
 urlpatterns += [
     path("rides/<int:ride_id>/status/", RideStatusView.as_view(), name="ride-status"),

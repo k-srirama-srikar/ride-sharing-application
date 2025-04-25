@@ -95,6 +95,14 @@ class RequestRideView(generics.CreateAPIView):
 
 
 
+from django.contrib.gis.db.models.functions import Distance
+from django.contrib.gis.measure import D
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from .models import RideRequest, RidePooling, Driver
+from .permissions import IsRider
+
 class GetNearbyDriversView(APIView):
     permission_classes = [IsRider]
 
@@ -106,22 +114,77 @@ class GetNearbyDriversView(APIView):
             return Response({"error": "No pending ride request"}, status=404)
 
         source = request_obj.source
-        drivers = (
-            Driver.objects
-            .filter(status='available', driverlocation__location__dwithin=(source, D(km=5)))
-            .annotate(distance=Distance('driverlocation__location', source))
-            .order_by('distance')[:5]
-        )
+        pooling = request_obj.pooling
 
-        return Response([
-            {
-                "driver_id": driver.id,
-                "vehicle_model": driver.vehicle_model,
-                "vehicle_number": driver.vehicle_number,
-                "distance_km": round(driver.distance.km, 2)
-            }
-            for driver in drivers
-        ])
+        drivers_data = []
+
+        if pooling:
+            # Try active pooling sessions first
+            pooling_matches = (
+                RidePooling.objects
+                .filter(status='active', available_seats__gt=0)
+                .filter(driver__driverlocation__location__dwithin=(source, D(km=5)))
+                .annotate(distance=Distance('driver__driverlocation__location', source))
+                .order_by('distance')[:5]
+            )
+
+            if pooling_matches.exists():
+                drivers_data = [
+                    {
+                        "driver_id": pool.driver.id,
+                        "pooling_id": pool.id,
+                        "vehicle_model": pool.driver.vehicle_model,
+                        "vehicle_number": pool.driver.vehicle_number,
+                        "available_seats": pool.available_seats,
+                        "distance_km": round(pool.distance.km, 2),
+                        "from_pooling": True
+                    }
+                    for pool in pooling_matches
+                ]
+            else:
+                # Fallback to available drivers (not pooling)
+                available_drivers = (
+                    Driver.objects
+                    .filter(status='available', driverlocation__location__dwithin=(source, D(km=5)))
+                    .annotate(distance=Distance('driverlocation__location', source))
+                    .order_by('distance')[:5]
+                )
+
+                drivers_data = [
+                    {
+                        "driver_id": driver.id,
+                        "vehicle_model": driver.vehicle_model,
+                        "vehicle_number": driver.vehicle_number,
+                        "distance_km": round(driver.distance.km, 2),
+                        "from_pooling": False
+                    }
+                    for driver in available_drivers
+                ]
+
+        else:
+            # Non-pooling ride — fetch only available drivers
+            available_drivers = (
+                Driver.objects
+                .filter(status='available', driverlocation__location__dwithin=(source, D(km=5)))
+                .annotate(distance=Distance('driverlocation__location', source))
+                .order_by('distance')[:5]
+            )
+
+            drivers_data = [
+                {
+                    "driver_id": driver.id,
+                    "vehicle_model": driver.vehicle_model,
+                    "vehicle_number": driver.vehicle_number,
+                    "distance_km": round(driver.distance.km, 2),
+                    "from_pooling": False
+                }
+                for driver in available_drivers
+            ]
+
+        return Response({
+            "request_id": request_obj.id,
+            "available_drivers": drivers_data
+        })
 
 
 
@@ -470,29 +533,110 @@ def initiate_ride_request(request):
     # )
 
 
-    nearby_drivers = (
-        Driver.objects
-        .filter(status='available')
-        .annotate(distance=Distance('driverlocation__location', source_point))
-        .filter(distance__lte=5000)  # 5 km
-        .order_by('distance')[:5]
-    )
+    # nearby_drivers = (
+    #     Driver.objects
+    #     .filter(status='available')
+    #     .annotate(distance=Distance('driverlocation__location', source_point))
+    #     .filter(distance__lte=5000)  # 5 km
+    #     .order_by('distance')[:5]
+    # )
 
 
-    driver_list = [
-        {
-            "driver_id": driver.id,
-            "name": driver.user.name,
-            "distance_km": round(driver.distance.km, 2)
-        }
-        for driver in nearby_drivers
-    ]
+    # driver_list = [
+    #     {
+    #         "driver_id": driver.id,
+    #         "name": driver.user.name,
+    #         "distance_km": round(driver.distance.km, 2)
+    #     }
+    #     for driver in nearby_drivers
+    # ]
+
+    # return Response({
+    #     "request_id": ride_request.id,
+    #     "available_drivers": driver_list
+    # })
+
+
+    # rider = request.user.rider
+    # try:
+    #     request_obj = RideRequest.objects.get(rider=rider, status='pending')
+    # except RideRequest.DoesNotExist:
+    #     return Response({"error": "No pending ride request"}, status=404)
+
+    # source = request_obj.source
+    # pooling = request_obj.pooling
+
+    drivers_data = []
+
+    if pooling:
+        # Try active pooling sessions first
+        pooling_matches = (
+            RidePooling.objects
+            .filter(status='active', available_seats__gt=0)
+            .annotate(distance=Distance('driver__driverlocation__location', source_point))
+            .filter(distance__lte=5000)
+            .order_by('distance')[:5]
+        )
+
+        if pooling_matches.exists():
+            drivers_data = [
+                {
+                    "driver_id": pool.driver.id,
+                    "pooling_id": pool.id,
+                    "vehicle_model": pool.driver.vehicle_model,
+                    "vehicle_number": pool.driver.vehicle_number,
+                    "available_seats": pool.available_seats,
+                    "distance_km": round(pool.distance.km, 2),
+                    "from_pooling": True
+                }
+                for pool in pooling_matches
+            ]
+        else:
+            # Fallback to available drivers (not pooling)
+            available_drivers = (
+                Driver.objects
+                .annotate(distance=Distance('driverlocation__location', source_point))
+                .filter(distance__lte=5000)
+                .order_by('distance')[:5]
+            )
+
+            drivers_data = [
+                {
+                    "driver_id": driver.id,
+                    "vehicle_model": driver.vehicle_model,
+                    "vehicle_number": driver.vehicle_number,
+                    "distance_km": round(driver.distance.km, 2),
+                    "from_pooling": False
+                }
+                for driver in available_drivers
+            ]
+
+    else:
+        # Non-pooling ride — fetch only available drivers
+        available_drivers = (
+            Driver.objects
+            .annotate(distance=Distance('driverlocation__location', source_point))
+            .filter(distance__lte=5000)
+            .order_by('distance')[:5]
+        )
+
+        drivers_data = [
+            {
+                "driver_id": driver.id,
+                "vehicle_model": driver.vehicle_model,
+                "vehicle_number": driver.vehicle_number,
+                "distance_km": round(driver.distance.km, 2),
+                "from_pooling": False
+            }
+            for driver in available_drivers
+        ]
 
     return Response({
         "request_id": ride_request.id,
-        "available_drivers": driver_list
+        "available_drivers": drivers_data
     })
 
+from django.contrib.gis.geos import LineString
 
 
 @api_view(['POST'])
@@ -501,6 +645,8 @@ def confirm_ride_request(request):
     rider = request.user.rider
     driver_id = request.data.get('driver_id')
     request_id = request.data.get('request_id')
+    route_coords = request.data.get('route')  # optional GeoJSON or encoded polyline
+    pooling = request.data.get('pooling', False)  # if pooling is enabled
 
     try:
         ride_request = RideRequest.objects.get(id=request_id, rider=rider, status='pending')
@@ -508,9 +654,63 @@ def confirm_ride_request(request):
         return Response({"error": "Invalid or already matched request"}, status=404)
 
     try:
-        driver = Driver.objects.get(id=driver_id, status='available')
+        driver = Driver.objects.get(id=driver_id)
     except Driver.DoesNotExist:
         return Response({"error": "Driver not available"}, status=404)
+
+    pooling_obj = None
+
+    try:
+        pooling_id = request.data.get('pooling_id')
+    except:
+        pooling_id=None
+
+
+    # If pooling is requested, check for existing pool or create new one
+    if pooling:
+        if pooling_id:
+            try:
+                pooling_obj = RidePooling.objects.get(id=pooling_id, driver=driver, status='active', available_seats__gt=0)
+                pooling_obj.available_seats -= 1
+                pooling_obj.save()
+            except RidePooling.DoesNotExist:
+                return Response({"error": "Invalid or full pooling ID"}, status=404)
+        else:
+            existing_pool = RidePooling.objects.filter(driver=driver, status='active', available_seats__gt=0).first()
+
+            if existing_pool:
+                pooling_obj = existing_pool
+                pooling_obj.available_seats -= 1
+                pooling_obj.save()
+            else:
+                # from django.contrib.gis.geos import LineString
+
+                waypoints = None
+                if route_coords:
+                    # route_coords should be a list of [lng, lat] pairs
+                    try:
+                        line = LineString([tuple(coord) for coord in route_coords])
+                        waypoints = line
+                    except Exception as e:
+                        return Response({"error": f"Invalid route format: {str(e)}"}, status=400)
+
+                pooling_obj = RidePooling.objects.create(
+                    driver=driver,
+                    waypoints=waypoints,
+                    total_seats=4,
+                    available_seats=3,  # since this ride will be added now
+                    status='active'
+                )
+
+        if pooling_obj and route_coords:
+            try:
+                updated_line = LineString([tuple(coord) for coord in route_coords])
+                print(updated_line)
+                pooling_obj.waypoints = updated_line
+                pooling_obj.save()
+            except Exception as e:
+                return Response({"error": f"Invalid updated route: {str(e)}"}, status=400)
+
 
     # Create the ride
     ride = Ride.objects.create(
@@ -518,9 +718,11 @@ def confirm_ride_request(request):
         rider=rider,
         source=ride_request.source,
         destination=ride_request.destination,
+        pooling=pooling_obj,
         status='ongoing'
     )
 
+    # Update statuses
     ride_request.status = 'matched'
     ride_request.save()
 
@@ -530,7 +732,8 @@ def confirm_ride_request(request):
     return Response({
         "message": "Ride confirmed",
         "ride_id": ride.id,
-        "driver": driver.user.name
+        "driver": driver.user.name,
+        "pooling_id": pooling_obj.id if pooling_obj else None
     })
 
 

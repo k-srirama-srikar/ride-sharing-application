@@ -14,7 +14,7 @@ BEGIN
     SET 
         ride_count = ride_count + 1,
         last_ride_at = CURRENT_TIMESTAMP
-    WHERE rider_id = NEW.rider_id;
+    WHERE id = NEW.id;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -27,8 +27,8 @@ EXECUTE PROCEDURE update_rider_stats_on_ride();
 
 # SQL to drop the trigger and function (used for reversing the migration)
 REVERSE_TRIGGER_SQL = """
-DROP TRIGGER IF EXISTS trg_update_rider_stats ON core_ride;
-DROP FUNCTION IF EXISTS update_rider_stats_on_ride();
+DROP FUNCTION IF EXISTS update_rider_stats_on_ride() CASCADE;
+DROP TRIGGER IF EXISTS trg_update_rider_stats ON core_ride CASCADE;
 """
 
 
@@ -66,8 +66,8 @@ class Migration(migrations.Migration):
             EXECUTE FUNCTION validate_pooling_seats();
             ''',
             reverse_sql="""
-            DROP TRIGGER IF EXISTS trg_validate_seats ON core_ridepooling;
-            DROP FUNCTION IF EXISTS validate_pooling_seats();
+            DROP TRIGGER IF EXISTS trg_validate_seats ON core_ridepooling CASCADE;
+            DROP FUNCTION IF EXISTS validate_pooling_seats() CASCADE;
             """
         ),
 
@@ -75,7 +75,7 @@ class Migration(migrations.Migration):
             sql='''
             CREATE TABLE IF NOT EXISTS driver_flags (
                 flag_id SERIAL PRIMARY KEY,
-                driver_id INT REFERENCES drivers(driver_id),
+                driver_id INT REFERENCES core_driver(id),
                 message TEXT,
                 flagged_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
@@ -97,42 +97,42 @@ class Migration(migrations.Migration):
             EXECUTE FUNCTION flag_inactive_driver();
             ''',
             reverse_sql="""
-            DROP TRIGGER IF EXISTS trg_flag_inactive_driver ON core_driverlocation;
-            DROP FUNCTION IF EXISTS flag_inactive_driver();
+            DROP TRIGGER IF EXISTS trg_flag_inactive_driver ON core_driverlocation CASCADE;
+            DROP FUNCTION IF EXISTS flag_inactive_driver() CASCADE;
             """
         ),
 
-        migrations.RunSQL(
-            sql="""
-            CREATE OR REPLACE FUNCTION update_driver_stats()
-            RETURNS TRIGGER AS $$
-            BEGIN
-                -- Only act when a ride is marked completed
-                IF NEW.status = 'completed' AND OLD.status <> 'completed' THEN
-                    UPDATE core_drivers
-                    SET completed_ride_count = completed_ride_count + 1,
-                        last_completed_ride_at = CURRENT_TIMESTAMP
-                    WHERE driver_id = NEW.driver_id;
-                END IF;
-                RETURN NEW;
-            END;
-            $$ LANGUAGE plpgsql;
-            """,
-            reverse_sql="""
-            DROP FUNCTION IF EXISTS update_driver_stats();
-            """            
-        ),
-        migrations.RunSQL(
-            sql="""
-            DROP TRIGGER IF EXISTS trg_update_driver_stats ON rides;
+        # migrations.RunSQL(
+        #     sql="""
+        #     CREATE OR REPLACE FUNCTION update_driver_stats()
+        #     RETURNS TRIGGER AS $$
+        #     BEGIN
+        #         -- Only act when a ride is marked completed
+        #         IF NEW.status = 'completed' AND OLD.status <> 'completed' THEN
+        #             UPDATE core_driver
+        #             SET completed_ride_count = completed_ride_count + 1,
+        #                 last_completed_ride_at = CURRENT_TIMESTAMP
+        #             WHERE id = NEW.id;
+        #         END IF;
+        #         RETURN NEW;
+        #     END;
+        #     $$ LANGUAGE plpgsql;
+        #     """,
+        #     reverse_sql="""
+        #     DROP FUNCTION IF EXISTS update_driver_stats() CASCADE;
+        #     """            
+        # ),
+        # migrations.RunSQL(
+        #     sql="""
+        #     DROP TRIGGER IF EXISTS trg_update_driver_stats ON rides;
 
-            CREATE TRIGGER trg_update_driver_stats
-            AFTER UPDATE ON core_ride
-            FOR EACH ROW
-            EXECUTE FUNCTION update_driver_stats();
-            """,
-            reverse_sql='''
-            DROP TRIGGER IF EXISTS trg_flag_inactive_driver ON core_driverlocation;
-            '''
-        )
+        #     CREATE TRIGGER trg_update_driver_stats
+        #     AFTER UPDATE ON core_ride
+        #     FOR EACH ROW
+        #     EXECUTE FUNCTION update_driver_stats();
+        #     """,
+        #     reverse_sql='''
+        #     DROP TRIGGER IF EXISTS trg_flag_inactive_driver ON core_driverlocation CASCADE;
+        #     '''
+        # )
     ]
