@@ -38,7 +38,7 @@ const DriverDashboard = () => {
       <h1 className={styles.heading}>Welcome, Driver!</h1>
       <p className={styles.text}>Check your assigned rides and status below.</p>
       <div className={styles.card}>
-        <p>Ride request: Connaught Place to AIIMS</p>
+        <p>Ride request: TEST</p>
         <button className={styles.button} onClick={handleAcceptRide}>
           Accept Ride
         </button>

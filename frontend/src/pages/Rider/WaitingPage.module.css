@@ -1,4 +1,4 @@
-.container {
+/* .container {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -18,4 +18,97 @@
     color: #444;
     margin-top: 10px;
   }
-  
+   */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   /* src/components/WaitingPage/WaitingPage.module.css */
+/* (Adjust the path if your file structure is different) */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 70vh; /* Take up significant vertical space */
+  text-align: center;
+  padding: 2rem;
+  background-color: #f4f7f6; /* Light, neutral background */
+  font-family: sans-serif;
+}
+
+.message {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #28a745; /* Green color for success message */
+  margin-bottom: 1rem;
+}
+
+.subtext {
+  font-size: 1.1rem;
+  color: #555; /* Dark grey text */
+  margin-bottom: 1.5rem; /* Space before redirect info or spinner */
+}
+
+.redirectInfo {
+  font-size: 0.9em;
+  color: #777; /* Lighter grey text */
+  margin-top: 0.5rem;
+}
+
+/* Optional: Add a simple pulsing dot animation */
+.loadingDots::after {
+  content: ' .';
+  animation: dots 1.4s steps(5, end) infinite;
+  display: inline-block; /* Prevents wrapping */
+  width: 2em; /* Adjust width based on font size */
+  text-align: left; /* Keep dots aligned left */
+}
+
+@keyframes dots {
+  0%, 20% {
+    color: rgba(0, 0, 0, 0);
+    text-shadow:
+      .25em 0 0 rgba(0, 0, 0, 0),
+      .5em 0 0 rgba(0, 0, 0, 0);
+  }
+  40% {
+    color: #555; /* Match subtext color */
+    text-shadow:
+      .25em 0 0 rgba(0, 0, 0, 0),
+      .5em 0 0 rgba(0, 0, 0, 0);
+  }
+  60% {
+    text-shadow:
+      .25em 0 0 #555,
+      .5em 0 0 rgba(0, 0, 0, 0);
+  }
+  80%, 100% {
+    text-shadow:
+      .25em 0 0 #555,
+      .5em 0 0 #555;
+  }
+}
+
+/* --- How to use the loading dots --- */
+/* In your WaitingPage.js, modify the subtext paragraph like this: */
+/*
+  <p className={styles.subtext}>
+    Please wait, finding your driver
+    <span className={styles.loadingDots}></span>
+  </p>
+*/

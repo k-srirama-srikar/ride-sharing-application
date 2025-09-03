@@ -107,7 +107,7 @@
 
 // const RideTracking = () => {
 //   const { isLoaded, loadError } = useLoadScript({
-//     googleMapsApiKey: "AIzaSyAppFXEnV-7uIz605C8ht9r-PcQ_gexOXw", // Replace with env var later
+//     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
 //     libraries,
 //   });
 
